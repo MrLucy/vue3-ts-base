@@ -1,46 +1,36 @@
-<template>
-  <div class="default-layout">
-    <header class="header" v-if="!hideNav">
-      <nav class="nav">
-        <router-link to="/" class="logo">Vite Vue App</router-link>
-        <div class="nav-links">
-          <router-link to="/" class="nav-link">首页</router-link>
-          <router-link to="/about" class="nav-link">关于</router-link>
-          <router-link to="/profile" class="nav-link">个人中心</router-link>
-        </div>
-        <div class="user-actions">
-          <template v-if="isLoggedIn">
-            <span class="username">{{ displayName }}</span>
-            <button class="btn-theme" @click="handleToggleTheme">
-              {{ isDark ? '☀️' : '🌙' }}
-            </button>
-            <button class="btn-logout" @click="handleLogout">退出</button>
-          </template>
-          <router-link v-else to="/login" class="btn-login">登录</router-link>
-        </div>
-      </nav>
-    </header>
-
-    <main class="main-content">
-      <router-view v-slot="{ Component, route }">
-        <transition name="fade" mode="out-in">
-          <component :is="Component" :key="route.path" />
-        </transition>
-      </router-view>
-    </main>
-
-    <footer class="footer" v-if="!hideNav">
-      <p>&copy; 2024 Vite Vue App. All rights reserved.</p>
-    </footer>
-  </div>
-</template>
-
 <script setup lang="ts">
 import { computed } from 'vue';
 
 import { storeToRefs } from 'pinia';
 import { useRoute, useRouter } from 'vue-router';
 
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Button } from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { Separator } from '@/components/ui/separator';
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarHeader,
+  SidebarInset,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarProvider,
+  SidebarRail,
+  SidebarTrigger,
+} from '@/components/ui/sidebar';
 import { useAppStore } from '@/stores/app';
 import { useUserStore } from '@/stores/user';
 
@@ -49,12 +39,30 @@ const router = useRouter();
 const userStore = useUserStore();
 const appStore = useAppStore();
 
-// 使用 storeToRefs 保持响应性
 const { isLoggedIn, displayName } = storeToRefs(userStore);
 const { isDark } = storeToRefs(appStore);
 
 // 是否隐藏导航（登录页、404页等）
 const hideNav = computed(() => route.meta.hideNav as boolean);
+
+// 导航菜单项
+const navItems = [
+  {
+    title: '首页',
+    path: '/',
+    icon: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>`,
+  },
+  {
+    title: '关于',
+    path: '/about',
+    icon: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>`,
+  },
+  {
+    title: '个人中心',
+    path: '/profile',
+    icon: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>`,
+  },
+];
 
 // 退出登录
 const handleLogout = () => {
@@ -65,126 +73,370 @@ const handleLogout = () => {
 // 切换主题
 const handleToggleTheme = () => {
   appStore.toggleTheme();
+  // 应用主题到 html 元素
+  const html = document.documentElement;
+  if (appStore.isDark) {
+    html.classList.add('dark');
+  } else {
+    html.classList.remove('dark');
+  }
 };
+
+// 获取用户头像缩写
+const userInitials = computed(() => {
+  const name = displayName.value || '用户';
+  return name.charAt(0).toUpperCase();
+});
 </script>
 
-<style scoped lang="less">
-.default-layout {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-}
+<template>
+  <div v-if="hideNav" class="min-h-svh">
+    <router-view />
+  </div>
 
-.header {
-  background: #fff;
-  border-bottom: 1px solid #e5e7eb;
-  box-shadow: 0 1px 3px rgb(0 0 0 / 10%);
-}
+  <SidebarProvider v-else>
+    <Sidebar>
+      <!-- Sidebar Header -->
+      <SidebarHeader>
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton size="lg" as-child>
+              <router-link to="/">
+                <div
+                  class="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path
+                      d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"
+                    />
+                  </svg>
+                </div>
+                <span class="font-semibold">Vite Vue App</span>
+              </router-link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
+      </SidebarHeader>
 
-.nav {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 24px;
-  height: 64px;
-}
+      <SidebarContent>
+        <!-- 主导航 -->
+        <SidebarGroup>
+          <SidebarGroupLabel>导航</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              <SidebarMenuItem v-for="item in navItems" :key="item.path">
+                <SidebarMenuButton as-child :is-active="route.path === item.path">
+                  <router-link :to="item.path">
+                    <span v-html="item.icon" />
+                    <span>{{ item.title }}</span>
+                  </router-link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+      </SidebarContent>
 
-.logo {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: #42b883;
-  text-decoration: none;
-}
+      <!-- Sidebar Footer -->
+      <SidebarFooter>
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <!-- 主题切换 -->
+            <SidebarMenuButton @click="handleToggleTheme">
+              <svg
+                v-if="isDark"
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <circle cx="12" cy="12" r="4" />
+                <path d="M12 2v2" />
+                <path d="M12 20v2" />
+                <path d="m4.93 4.93 1.41 1.41" />
+                <path d="m17.66 17.66 1.41 1.41" />
+                <path d="M2 12h2" />
+                <path d="M20 12h2" />
+                <path d="m6.34 17.66-1.41 1.41" />
+                <path d="m19.07 4.93-1.41 1.41" />
+              </svg>
+              <svg
+                v-else
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />
+              </svg>
+              <span>{{ isDark ? '浅色模式' : '深色模式' }}</span>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
 
-.nav-links {
-  display: flex;
-  gap: 32px;
-}
+        <Separator />
 
-.nav-link {
-  color: #374151;
-  font-size: 1rem;
-  font-weight: 500;
-  text-decoration: none;
-  transition: color 0.3s;
+        <!-- 用户菜单 -->
+        <SidebarMenu>
+          <SidebarMenuItem v-if="isLoggedIn">
+            <DropdownMenu>
+              <DropdownMenuTrigger as-child>
+                <SidebarMenuButton
+                  size="lg"
+                  class="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+                >
+                  <Avatar class="h-8 w-8 rounded-lg">
+                    <AvatarImage src="" :alt="displayName" />
+                    <AvatarFallback class="rounded-lg bg-primary text-primary-foreground text-xs">
+                      {{ userInitials }}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div class="grid flex-1 text-left text-sm leading-tight">
+                    <span class="truncate font-semibold">{{ displayName }}</span>
+                    <span class="truncate text-xs text-muted-foreground">在线</span>
+                  </div>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    class="ml-auto"
+                  >
+                    <path d="m9 18 6-6-6-6" />
+                  </svg>
+                </SidebarMenuButton>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent
+                class="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg"
+                side="bottom"
+                align="end"
+                :side-offset="4"
+              >
+                <DropdownMenuLabel class="p-0 font-normal">
+                  <div class="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
+                    <Avatar class="h-8 w-8 rounded-lg">
+                      <AvatarImage src="" :alt="displayName" />
+                      <AvatarFallback class="rounded-lg bg-primary text-primary-foreground text-xs">
+                        {{ userInitials }}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div class="grid flex-1 text-left text-sm leading-tight">
+                      <span class="truncate font-semibold">{{ displayName }}</span>
+                      <span class="truncate text-xs text-muted-foreground">user@example.com</span>
+                    </div>
+                  </div>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem @click="router.push('/profile')">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    class="mr-2"
+                  >
+                    <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
+                    <circle cx="12" cy="7" r="4" />
+                  </svg>
+                  个人中心
+                </DropdownMenuItem>
+                <DropdownMenuItem @click="handleToggleTheme">
+                  <svg
+                    v-if="isDark"
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    class="mr-2"
+                  >
+                    <circle cx="12" cy="12" r="4" />
+                    <path d="M12 2v2" />
+                    <path d="M12 20v2" />
+                    <path d="m4.93 4.93 1.41 1.41" />
+                    <path d="m17.66 17.66 1.41 1.41" />
+                    <path d="M2 12h2" />
+                    <path d="M20 12h2" />
+                    <path d="m6.34 17.66-1.41 1.41" />
+                    <path d="m19.07 4.93-1.41 1.41" />
+                  </svg>
+                  <svg
+                    v-else
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    class="mr-2"
+                  >
+                    <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />
+                  </svg>
+                  {{ isDark ? '切换浅色' : '切换深色' }}
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  @click="handleLogout"
+                  class="text-destructive focus:text-destructive"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    class="mr-2"
+                  >
+                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                    <polyline points="16 17 21 12 16 7" />
+                    <line x1="21" x2="9" y1="12" y2="12" />
+                  </svg>
+                  退出登录
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </SidebarMenuItem>
 
-  &:hover {
-    color: #42b883;
-  }
+          <SidebarMenuItem v-else>
+            <SidebarMenuButton as-child>
+              <router-link to="/login">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
+                  <polyline points="10 17 15 12 10 7" />
+                  <line x1="15" x2="3" y1="12" y2="12" />
+                </svg>
+                <span>登录</span>
+              </router-link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
+      </SidebarFooter>
+      <SidebarRail />
+    </Sidebar>
 
-  &.router-link-active {
-    color: #42b883;
-  }
-}
+    <SidebarInset>
+      <!-- 顶部栏 -->
+      <header class="flex h-14 items-center gap-4 border-b bg-background px-4 lg:h-[60px] lg:px-6">
+        <SidebarTrigger class="-ml-1" />
+        <Separator orientation="vertical" class="h-6" />
+        <div class="flex-1">
+          <h1 class="text-sm font-semibold lg:text-base">
+            {{ route.meta.title || 'Vite Vue App' }}
+          </h1>
+        </div>
+        <div class="flex items-center gap-2">
+          <Button variant="ghost" size="icon" @click="handleToggleTheme">
+            <svg
+              v-if="isDark"
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <circle cx="12" cy="12" r="4" />
+              <path d="M12 2v2" />
+              <path d="M12 20v2" />
+              <path d="m4.93 4.93 1.41 1.41" />
+              <path d="m17.66 17.66 1.41 1.41" />
+              <path d="M2 12h2" />
+              <path d="M20 12h2" />
+              <path d="m6.34 17.66-1.41 1.41" />
+              <path d="m19.07 4.93-1.41 1.41" />
+            </svg>
+            <svg
+              v-else
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />
+            </svg>
+          </Button>
+        </div>
+      </header>
 
-.user-actions {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-}
+      <!-- 主内容区 -->
+      <main class="flex-1 p-4 lg:p-6">
+        <router-view v-slot="{ Component, route: routeInstance }">
+          <transition name="fade" mode="out-in">
+            <component :is="Component" :key="routeInstance.path" />
+          </transition>
+        </router-view>
+      </main>
 
-.username {
-  color: #6b7280;
-  font-size: 0.875rem;
-}
+      <!-- 页脚 -->
+      <footer class="border-t py-4 px-4 lg:px-6">
+        <p class="text-center text-sm text-muted-foreground">
+          © 2024 Vite Vue App. All rights reserved.
+        </p>
+      </footer>
+    </SidebarInset>
+  </SidebarProvider>
+</template>
 
-.btn-login,
-.btn-logout,
-.btn-theme {
-  padding: 8px 16px;
-  font-size: 0.875rem;
-  font-weight: 500;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: all 0.3s;
-}
-
-.btn-theme {
-  background: transparent;
-  border: 1px solid #e5e7eb;
-
-  &:hover {
-    background: #f3f4f6;
-  }
-}
-
-.btn-login {
-  color: #fff;
-  background: #42b883;
-  text-decoration: none;
-  border: none;
-
-  &:hover {
-    background: #369870;
-  }
-}
-
-.btn-logout {
-  color: #ef4444;
-  background: transparent;
-  border: 1px solid #ef4444;
-
-  &:hover {
-    color: #fff;
-    background: #ef4444;
-  }
-}
-
-.main-content {
-  flex: 1;
-}
-
-.footer {
-  padding: 24px;
-  text-align: center;
-  color: #9ca3af;
-  font-size: 0.875rem;
-  border-top: 1px solid #e5e7eb;
-}
-
-// 路由过渡动画
+<style scoped>
 .fade-enter-active,
 .fade-leave-active {
   transition: opacity 0.3s ease;
