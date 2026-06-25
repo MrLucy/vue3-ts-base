@@ -84,8 +84,8 @@ export default [
       'import-x/newline-after-import': 'error',
     },
   },
-  // 忽略 commitlint 配置文件
+  // 忽略 commitlint 配置文件和自动生成的 UI 组件
   {
-    ignores: ['commitlint.config.cjs'],
+    ignores: ['commitlint.config.cjs', 'src/components/ui/**/*'],
   },
 ];

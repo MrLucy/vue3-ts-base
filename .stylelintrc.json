@@ -24,23 +24,25 @@
         "ignoreAtRules": [
           "extends",
           "apply",
-          "tailwind",
-          "components",
-          "responsive",
-          "screen",
-          "mixin",
-          "include",
-          "function",
-          "return",
-          "if",
-          "else",
-          "for",
-          "each",
-          "while",
-          "debug",
-          "warn",
-          "error"
-        ]
+        "tailwind",
+        "components",
+        "responsive",
+        "screen",
+        "mixin",
+        "include",
+        "function",
+        "return",
+        "if",
+        "else",
+        "for",
+        "each",
+        "while",
+        "debug",
+        "warn",
+        "error",
+        "custom-variant",
+        "theme"
+      ]
       }
     ]
   }
