@@ -84,4 +84,8 @@ export default [
       'import-x/newline-after-import': 'error',
     },
   },
+  // 忽略 commitlint 配置文件
+  {
+    ignores: ['commitlint.config.cjs'],
+  },
 ];

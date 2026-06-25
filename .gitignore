@@ -29,3 +29,7 @@ dist-ssr
 
 # Stylelint
 .stylelintcache
+
+# Environment files (keep .env as template, ignore local overrides)
+.env.local
+.env.*.local
