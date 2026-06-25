@@ -1,0 +1,47 @@
+{
+  "extends": ["stylelint-config-standard"],
+  "plugins": ["stylelint-order", "stylelint-scss"],
+  "overrides": [
+    {
+      "files": ["**/*.vue"],
+      "customSyntax": "postcss-html"
+    },
+    {
+      "files": ["**/*.less"],
+      "customSyntax": "postcss-less"
+    }
+  ],
+  "rules": {
+    "order/properties-order": [],
+    "no-empty-source": null,
+    "declaration-empty-line-before": null,
+    "selector-class-pattern": null,
+    "keyframes-name-pattern": null,
+    "custom-property-pattern": null,
+    "at-rule-no-unknown": [
+      true,
+      {
+        "ignoreAtRules": [
+          "extends",
+          "apply",
+          "tailwind",
+          "components",
+          "responsive",
+          "screen",
+          "mixin",
+          "include",
+          "function",
+          "return",
+          "if",
+          "else",
+          "for",
+          "each",
+          "while",
+          "debug",
+          "warn",
+          "error"
+        ]
+      }
+    ]
+  }
+}
