@@ -50,17 +50,17 @@ const navItems = [
   {
     title: '首页',
     path: '/',
-    icon: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>`,
+    icon: 'home',
   },
   {
     title: '关于',
     path: '/about',
-    icon: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>`,
+    icon: 'info',
   },
   {
     title: '个人中心',
     path: '/profile',
-    icon: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>`,
+    icon: 'user',
   },
 ];
 
@@ -101,7 +101,7 @@ const userInitials = computed(() => {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" as-child>
-              <router-link to="/">
+              <router-link to="/" class="flex items-center gap-3">
                 <div
                   class="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground"
                 >
@@ -136,8 +136,53 @@ const userInitials = computed(() => {
             <SidebarMenu>
               <SidebarMenuItem v-for="item in navItems" :key="item.path">
                 <SidebarMenuButton as-child :is-active="route.path === item.path">
-                  <router-link :to="item.path">
-                    <span v-html="item.icon" />
+                  <router-link :to="item.path" class="flex items-center gap-3">
+                    <svg
+                      v-if="item.icon === 'home'"
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
+                      <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+                      <polyline points="9 22 9 12 15 12 15 22" />
+                    </svg>
+                    <svg
+                      v-else-if="item.icon === 'info'"
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
+                      <circle cx="12" cy="12" r="10" />
+                      <path d="M12 16v-4" />
+                      <path d="M12 8h.01" />
+                    </svg>
+                    <svg
+                      v-else-if="item.icon === 'user'"
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
+                      <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
+                      <circle cx="12" cy="7" r="4" />
+                    </svg>
                     <span>{{ item.title }}</span>
                   </router-link>
                 </SidebarMenuButton>
@@ -340,7 +385,7 @@ const userInitials = computed(() => {
 
           <SidebarMenuItem v-else>
             <SidebarMenuButton as-child>
-              <router-link to="/login">
+              <router-link to="/login" class="flex items-center gap-3">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   width="16"
@@ -365,7 +410,7 @@ const userInitials = computed(() => {
       <SidebarRail />
     </Sidebar>
 
-    <SidebarInset>
+    <SidebarInset class="flex flex-col min-h-svh">
       <!-- 顶部栏 -->
       <header class="flex h-14 items-center gap-4 border-b bg-background px-4 lg:h-[60px] lg:px-6">
         <SidebarTrigger class="-ml-1" />
